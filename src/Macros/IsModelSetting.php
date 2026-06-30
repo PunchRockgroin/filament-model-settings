@@ -13,7 +13,7 @@ use Filament\Forms\Components\Field;
  */
 class IsModelSetting
 {
-    public function __invoke()
+    public function field()
     {
         return function (string $prefix = 'settings') {
             /** @var \Filament\Forms\Components\Field $this */
@@ -34,6 +34,36 @@ class IsModelSetting
                     $component->state($record->settings()->get($statePath));
                 }
             });
+
+            return $this;
+        };
+    }
+
+    public function textColumn()
+    {
+        return function () {
+
+            /** @var \Filament\Tables\Columns\TextColumn $this */
+            // default is important, otherwise formatStateUsing will not be called since it's not a field
+            $this->default('settings');
+            $this->formatStateUsing(function ($column, $livewire, $record) {
+
+                if (! method_exists($record, 'settings')) {
+                    return '';
+                }
+
+                return $record->settings()->get($column->name);
+            });
+
+            return $this;
+        };
+    }
+
+    public function textEntry()
+    {
+        return function () {
+            /** @var \Filament\Infolists\Components\TextEntry $this */
+            $this->getStateUsing(fn ($record) => $record->settings()->get($this->getStatePath()));
 
             return $this;
         };
